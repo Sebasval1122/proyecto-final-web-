@@ -12,7 +12,9 @@ Frontend skeleton para el proyecto DrivePoint: plataforma para compra, venta y a
   - `main.tsx` — bootstrap React
   - `App.tsx` — enrutamiento y layout principal
   - `pages/`
-    - `Home.tsx` — página principal
+    - `Home.tsx` — dashboard principal
+    - `Login.tsx` — formulario de acceso
+    - `Register.tsx` — formulario de registro
     - `Marketplace.tsx` — listado y compra/venta
     - `Rentals.tsx` — interfaz de alquileres
   - `components/`

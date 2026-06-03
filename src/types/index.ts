@@ -7,3 +7,5 @@ export type Car = {
   image?: string
   type: 'sale' | 'rent'
 }
+
+export type Role = 'admin' | 'dealer' | 'user'
