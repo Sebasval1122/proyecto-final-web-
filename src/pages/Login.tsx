@@ -21,7 +21,8 @@ export default function Login() {
     login(email, password, role)
       .then(() => {
         setMessage('Inicio de sesión exitoso.')
-        setTimeout(() => navigate('/'), 700)
+        const destination = role === 'admin' ? '/admin' : role === 'dealer' ? '/dealer' : '/marketplace'
+        setTimeout(() => navigate(destination), 700)
       })
       .catch((err: unknown) => setMessage(String(err)))
   }

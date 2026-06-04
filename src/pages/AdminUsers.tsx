@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { UserProfile, Role } from '../context/AuthContext'
+import { UserProfile, Role } from '../types'
 
 export default function AdminUsers(){
   const [list, setList] = useState<UserProfile[]>([])
