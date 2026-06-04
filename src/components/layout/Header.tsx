@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../../hooks/useAuth'
 
 export default function Header(){
   const { user, logout } = useAuth()
@@ -56,7 +56,7 @@ export default function Header(){
         ) : (
           <>
             <Link to={user.role === 'admin' ? '/admin' : user.role === 'dealer' ? '/dealer' : '/marketplace'} style={{color:'#94a3b8',textDecoration:'none',fontWeight:700}}>{user.name}</Link>
-            <button onClick={logout} style={{padding:'8px 12px',borderRadius:8,background:'#111827',color:'#cbd5e1',border:'none'}}>Logout</button>
+            <button onClick={logout} style={{padding:'8px 12px',borderRadius:8,background:'#111827',color:'#cbd5e1',border:'none',cursor:'pointer'}}>Logout</button>
           </>
         )}
       </nav>

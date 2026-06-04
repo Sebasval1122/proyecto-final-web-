@@ -1,46 +1,40 @@
-import React, { useState } from 'react'
-import { useAuth } from '../context/AuthContext'
-import CarCard from '../components/CarCard'
+import React from 'react'
+import { useAuth } from '../hooks/useAuth'
+import { useCars } from '../hooks/useCars'
+import { useTransactions } from '../hooks/useTransactions'
+import { usePickupPoints } from '../hooks/usePickupPoints'
+import CarCard from '../components/ui/CarCard'
+import PublishCarForm from '../components/forms/PublishCarForm'
+import PickupPointForm from '../components/forms/PickupPointForm'
 
 export default function DealerDashboard(){
-  const { user, publishCar, getDealsForDealer, pickupPoints, addPickupPoint, getPublishedCars } = useAuth()
-  const deals = getDealsForDealer()
+  const { user } = useAuth()
+  const { publishCar, getPublishedCars } = useCars()
+  const { getDealsForDealer } = useTransactions()
+  const { pickupPoints, addPickupPoint } = usePickupPoints()
+
+  const deals = user ? getDealsForDealer(user.email) : []
   const inProcess = deals.filter(tx => tx.status === 'proceso')
   const finalized = deals.filter(tx => tx.status === 'finalizado')
-  const publishedCars = getPublishedCars()
+  const publishedCars = user ? getPublishedCars(user.id) : []
 
   const name = user?.name || 'Concesionario'
-  const [form, setForm] = useState({ make: '', model: '', year: '', price: '', type: 'sale' })
-  const [pickupForm, setPickupForm] = useState({ name: '', address: '' })
-  const [message, setMessage] = useState('')
   const highlightedCar = publishedCars[0]
 
-  const handlePublish = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    try {
-      await publishCar({
-        make: form.make,
-        model: form.model,
-        year: Number(form.year),
-        price: Number(form.price),
-        type: form.type as 'sale' | 'rent'
-      })
-      setMessage('Vehículo publicado con éxito')
-      setForm({ make: '', model: '', year: '', price: '', type: 'sale' })
-    } catch (error) {
-      setMessage(String(error))
-    }
+  const handlePublish = async (data: any) => {
+    if (!user) return
+    await publishCar(user, {
+      make: data.make,
+      model: data.model,
+      year: Number(data.year),
+      price: Number(data.price),
+      type: data.type as 'sale' | 'rent'
+    })
   }
 
-  const handleAddPickup = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    try {
-      await addPickupPoint(pickupForm.name, pickupForm.address)
-      setMessage('Punto de entrega agregado')
-      setPickupForm({ name: '', address: '' })
-    } catch (error) {
-      setMessage(String(error))
-    }
+  const handleAddPickup = async (name: string, address: string) => {
+    if (!user) return
+    await addPickupPoint(user.email, name, address)
   }
 
   return (
@@ -81,32 +75,9 @@ export default function DealerDashboard(){
       ) : null}
 
       <section style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(260px,1fr))',gap:16,marginTop:24}}>
-        <article style={{padding:24,background:'#0f172a',borderRadius:16,border:'1px solid rgba(255,255,255,0.08)'}}>
-          <h2 style={{margin:0}}>Publicar vehículo</h2>
-          <form onSubmit={handlePublish} style={{display:'grid',gap:12,marginTop:16}}>
-            <input value={form.make} onChange={e => setForm(prev => ({...prev, make:e.target.value}))} placeholder='Marca' style={{padding:12,borderRadius:8,background:'#071028',border:'1px solid #334155',color:'#fff'}} />
-            <input value={form.model} onChange={e => setForm(prev => ({...prev, model:e.target.value}))} placeholder='Modelo' style={{padding:12,borderRadius:8,background:'#071028',border:'1px solid #334155',color:'#fff'}} />
-            <input value={form.year} onChange={e => setForm(prev => ({...prev, year:e.target.value}))} placeholder='Año' style={{padding:12,borderRadius:8,background:'#071028',border:'1px solid #334155',color:'#fff'}} />
-            <input value={form.price} onChange={e => setForm(prev => ({...prev, price:e.target.value}))} placeholder='Precio' style={{padding:12,borderRadius:8,background:'#071028',border:'1px solid #334155',color:'#fff'}} />
-            <select value={form.type} onChange={e => setForm(prev => ({...prev, type:e.target.value}))} style={{padding:12,borderRadius:8,background:'#071028',border:'1px solid #334155',color:'#fff'}}>
-              <option value='sale'>Venta</option>
-              <option value='rent'>Alquiler</option>
-            </select>
-            <button type='submit' style={{padding:'12px 16px',borderRadius:10,background:'#10b981',color:'#020617',fontWeight:700,border:'none',cursor:'pointer'}}>Publicar</button>
-          </form>
-        </article>
-
-        <article style={{padding:24,background:'#0f172a',borderRadius:16,border:'1px solid rgba(255,255,255,0.08)'}}>
-          <h2 style={{margin:0}}>Puntos de entrega</h2>
-          <form onSubmit={handleAddPickup} style={{display:'grid',gap:12,marginTop:16}}>
-            <input value={pickupForm.name} onChange={e => setPickupForm(prev => ({...prev, name:e.target.value}))} placeholder='Nombre del punto' style={{padding:12,borderRadius:8,background:'#071028',border:'1px solid #334155',color:'#fff'}} />
-            <input value={pickupForm.address} onChange={e => setPickupForm(prev => ({...prev, address:e.target.value}))} placeholder='Dirección' style={{padding:12,borderRadius:8,background:'#071028',border:'1px solid #334155',color:'#fff'}} />
-            <button type='submit' style={{padding:'12px 16px',borderRadius:10,background:'#10b981',color:'#020617',fontWeight:700,border:'none',cursor:'pointer'}}>Agregar punto</button>
-          </form>
-        </article>
+        <PublishCarForm onSubmit={handlePublish} />
+        <PickupPointForm onSubmit={handleAddPickup} />
       </section>
-
-      {message ? <p style={{marginTop:20,color:'#a5b4fc'}}>{message}</p> : null}
 
       <section style={{marginTop:32}}>
         <h2>Vehículos publicados</h2>

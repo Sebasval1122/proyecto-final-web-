@@ -1,9 +1,9 @@
 import React from 'react'
-import CarCard from '../components/CarCard'
-import { useAuth } from '../context/AuthContext'
+import CarCard from '../components/ui/CarCard'
+import { useCars } from '../hooks/useCars'
 
 export default function Marketplace(){
-  const { getAvailableCars } = useAuth()
+  const { getAvailableCars } = useCars()
   const cars = getAvailableCars().filter(car => car.type === 'sale')
 
   return (

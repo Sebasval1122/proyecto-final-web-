@@ -1,33 +1,31 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Link } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
-import CarCard from '../components/CarCard'
+import { useAuth } from '../hooks/useAuth'
+import { useCars } from '../hooks/useCars'
+import { useTransactions } from '../hooks/useTransactions'
+import CarCard from '../components/ui/CarCard'
+import PublishCarForm from '../components/forms/PublishCarForm'
 
 export default function UserDashboard(){
-  const { user, getAvailableCars, publishCar, getOrdersForUser, getPublishedCars } = useAuth()
+  const { user } = useAuth()
+  const { getAvailableCars, getPublishedCars, publishCar } = useCars()
+  const { getOrdersForUser } = useTransactions()
+
   const availableCars = getAvailableCars()
-  const myOrders = getOrdersForUser()
-  const myPublications = getPublishedCars()
+  const myOrders = user ? getOrdersForUser(user.email) : []
+  const myPublications = user ? getPublishedCars(user.id) : []
   const name = user?.name || 'Usuario'
   const recommended = availableCars[0]
-  const [form, setForm] = useState({ make: '', model: '', year: '', price: '', type: 'sale' })
-  const [message, setMessage] = useState('')
 
-  const handlePublish = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    try {
-      await publishCar({
-        make: form.make,
-        model: form.model,
-        year: Number(form.year),
-        price: Number(form.price),
-        type: form.type as 'sale' | 'rent'
-      })
-      setMessage('Vehículo publicado con éxito')
-      setForm({ make: '', model: '', year: '', price: '', type: 'sale' })
-    } catch (error) {
-      setMessage(String(error))
-    }
+  const handlePublish = async (data: any) => {
+    if (!user) return
+    await publishCar(user, {
+      make: data.make,
+      model: data.model,
+      year: Number(data.year),
+      price: Number(data.price),
+      type: data.type as 'sale' | 'rent'
+    })
   }
 
   return (
@@ -41,21 +39,7 @@ export default function UserDashboard(){
       </div>
 
       <section style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(260px,1fr))',gap:16,marginTop:24}}>
-        <article style={{padding:24,background:'#0f172a',borderRadius:16,border:'1px solid rgba(255,255,255,0.08)'}}>
-          <h2>Publicar vehículo</h2>
-          <form onSubmit={handlePublish} style={{display:'grid',gap:12,marginTop:16}}>
-            <input value={form.make} onChange={e => setForm(prev => ({...prev, make:e.target.value}))} placeholder='Marca' style={{padding:12,borderRadius:8,background:'#071028',border:'1px solid #334155',color:'#fff'}} />
-            <input value={form.model} onChange={e => setForm(prev => ({...prev, model:e.target.value}))} placeholder='Modelo' style={{padding:12,borderRadius:8,background:'#071028',border:'1px solid #334155',color:'#fff'}} />
-            <input value={form.year} onChange={e => setForm(prev => ({...prev, year:e.target.value}))} placeholder='Año' style={{padding:12,borderRadius:8,background:'#071028',border:'1px solid #334155',color:'#fff'}} />
-            <input value={form.price} onChange={e => setForm(prev => ({...prev, price:e.target.value}))} placeholder='Precio' style={{padding:12,borderRadius:8,background:'#071028',border:'1px solid #334155',color:'#fff'}} />
-            <select value={form.type} onChange={e => setForm(prev => ({...prev, type:e.target.value}))} style={{padding:12,borderRadius:8,background:'#071028',border:'1px solid #334155',color:'#fff'}}>
-              <option value='sale'>Venta</option>
-              <option value='rent'>Alquiler</option>
-            </select>
-            <button type='submit' style={{padding:'12px 16px',borderRadius:10,background:'#10b981',color:'#020617',fontWeight:700,border:'none',cursor:'pointer'}}>Publicar</button>
-          </form>
-          {message ? <p style={{marginTop:16,color:'#a5b4fc'}}>{message}</p> : null}
-        </article>
+        <PublishCarForm onSubmit={handlePublish} />
 
         <article style={{padding:24,background:'#0f172a',borderRadius:16,border:'1px solid rgba(255,255,255,0.08)'}}>
           <h2>Acciones</h2>

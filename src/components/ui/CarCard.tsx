@@ -1,5 +1,5 @@
 import React from 'react'
-import { Car } from '../types'
+import { Car } from '../../types'
 
 export default function CarCard({ car }: { car: Car }){
   return (

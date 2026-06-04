@@ -22,8 +22,8 @@ import UserFavorites from './pages/UserFavorites'
 import UserReservations from './pages/UserReservations'
 import MapPage from './pages/Map'
 import ProtectedRoute from './components/ProtectedRoute'
-import Header from './components/Header'
-import Footer from './components/Footer'
+import Header from './components/layout/Header'
+import Footer from './components/layout/Footer'
 
 export default function App() {
   return (

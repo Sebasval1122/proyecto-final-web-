@@ -1,9 +1,11 @@
 import React from 'react'
-import { useAuth } from '../context/AuthContext'
-import CarCard from '../components/CarCard'
+import { useCars } from '../hooks/useCars'
+import { useTransactions } from '../hooks/useTransactions'
+import CarCard from '../components/ui/CarCard'
 
 export default function AdminDashboard(){
-  const { cars, transactions } = useAuth()
+  const { cars } = useCars()
+  const { transactions } = useTransactions()
   const sales = transactions.filter(tx => tx.type === 'sale')
   const rents = transactions.filter(tx => tx.type === 'rent')
   const availableCars = cars.filter(car => car.status === 'available')
